@@ -20,5 +20,6 @@
         android:clickable="true"
         app:srcCompat="@android:drawable/ic_input_add"
         android:layout_gravity="bottom|right"
-        android:layout_margin="@dimen/fab_margin"/>
+        android:layout_margin="@dimen/fab_margin"
+        android:onClick="addCar"/>
 </FrameLayout>

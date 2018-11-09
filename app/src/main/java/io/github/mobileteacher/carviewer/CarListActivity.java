@@ -1,6 +1,7 @@
 package io.github.mobileteacher.carviewer;
 
 import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
@@ -12,6 +13,8 @@ public class CarListActivity extends AppCompatActivity {
 
 
     private RecyclerView carRecyclerView;
+
+    private final int ADD_CAR_REQUEST_CODE = 71;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +45,24 @@ public class CarListActivity extends AppCompatActivity {
     }
 
     public void addCar(View view){
-        startActivity(new Intent());
+        Intent intent = new Intent(this, AddNewCarActivity.class);
+        startActivityForResult(intent, ADD_CAR_REQUEST_CODE);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == ADD_CAR_REQUEST_CODE && resultCode == RESULT_OK){
+            String make = data.getStringExtra(AddNewCarActivity.MAKE_KEY);
+            String model = data.getStringExtra(AddNewCarActivity.MODEL_KEY);
+            int year =data.getIntExtra(AddNewCarActivity.YEAR_KEY, 0);
+            double price = data.getDoubleExtra(AddNewCarActivity.PRICE_KEY, 0.0);
+
+            Car newCar = new Car(make, model, year ,price);
+
+            CarAdapter adapter = (CarAdapter) carRecyclerView.getAdapter();
+            adapter.addItem(newCar);
+        }
+    }
 }

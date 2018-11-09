@@ -53,6 +53,11 @@ public class CarAdapter extends RecyclerView.Adapter {
         return carItems.size();
     }
 
+    public void addItem(Car newCar){
+        carItems.add(newCar);
+
+        notifyItemInserted(carItems.size()-1);
+    }
 
 
     public class CarViewHolder extends RecyclerView.ViewHolder{
