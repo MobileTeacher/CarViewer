@@ -9,6 +9,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class CarListActivity extends AppCompatActivity {
 
 
@@ -23,12 +32,14 @@ public class CarListActivity extends AppCompatActivity {
 
         carRecyclerView = findViewById(R.id.recyclerview);
 
-        Car[] carNames = {
-                new Car("Ford","Fiesta", 1996, 10000.00),
-                new Car("Toyota", "Corolla", 2009, 21000.76),
-                new Car("Volkswagen", "Gol", 2012, 18543.98),
-                new Car("Fiat", "Uno", 2018, 42000.42)};
+//        Car[] carNames = {
+//                new Car("Ford","Fiesta", 1996, 10000.00),
+//                new Car("Toyota", "Corolla", 2009, 21000.76),
+//                new Car("Volkswagen", "Gol", 2012, 18543.98),
+//                new Car("Fiat", "Uno", 2018, 42000.42)};
 
+
+        List<Car> carNames = readCarsFromFile();
 
         //Criar um Adapter para a RecyclerView
         CarAdapter adapter = new CarAdapter(carNames);
@@ -63,6 +74,51 @@ public class CarListActivity extends AppCompatActivity {
 
             CarAdapter adapter = (CarAdapter) carRecyclerView.getAdapter();
             adapter.addItem(newCar);
+
+            saveCarToFile(newCar);
         }
+    }
+
+
+    public void saveCarToFile(Car car){
+        File myFile = new File(getFilesDir(), "savedcars.txt");
+
+        try {
+            FileOutputStream outputStream = new FileOutputStream(myFile, true);
+            outputStream.write(car.toString().getBytes());
+            outputStream.close();
+        } catch (FileNotFoundException exception){
+            //
+        } catch (IOException exception){
+
+        }
+    }
+
+    public List<Car> readCarsFromFile(){
+        File myFile = new File(getFilesDir(), "savedcars.txt");
+        List<Car> cars = new ArrayList<>();
+
+        try {
+            FileReader reader = new FileReader(myFile);
+            BufferedReader bufferedReader = new BufferedReader(reader);
+            String line = bufferedReader.readLine();
+            while (line != null){
+                if (line.equals("#")){
+                    String make = bufferedReader.readLine();
+                    String model = bufferedReader.readLine();
+                    int year = Integer.parseInt(bufferedReader.readLine());
+                    double price = Double.parseDouble(bufferedReader.readLine());
+                    Car newCar = new Car(make, model, year, price);
+                    cars.add(newCar);
+                }
+                line = bufferedReader.readLine();
+            }
+        } catch (FileNotFoundException exception){
+            //
+        } catch (IOException exception){
+
+        }
+
+        return cars;
     }
 }
