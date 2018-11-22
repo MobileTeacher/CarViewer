@@ -153,8 +153,7 @@ public class CarListActivity extends AppCompatActivity {
             //associar RecyclerView a um Adapter
             carRecyclerView.setAdapter(adapter);
             //Dizer a "forma" da RecyclerView
-            RecyclerView.LayoutManager lm = new GridLayoutManager(getApplicationContext(),
-                    2);
+            RecyclerView.LayoutManager lm = new LinearLayoutManager(getApplicationContext());
             carRecyclerView.setLayoutManager(lm);
 
             carRecyclerView.addItemDecoration(
