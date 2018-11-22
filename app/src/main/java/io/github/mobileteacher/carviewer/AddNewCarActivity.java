@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 public class AddNewCarActivity extends AppCompatActivity {
 
     public static final String MAKE_KEY = "make";
@@ -13,10 +16,15 @@ public class AddNewCarActivity extends AppCompatActivity {
     public static final String YEAR_KEY = "year";
     public static final String PRICE_KEY = "price";
 
+    FirebaseDatabase firebaseDatabase;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_new_car);
+
+
+        firebaseDatabase = FirebaseDatabase.getInstance();
     }
 
 
@@ -26,15 +34,17 @@ public class AddNewCarActivity extends AppCompatActivity {
         EditText yearEditText = findViewById(R.id.year_edittext);
         EditText priceEditText = findViewById(R.id.price_edittext);
 
-        Intent intent = new Intent();
-        intent.putExtra(MAKE_KEY, makeEditText.getText().toString());
-        intent.putExtra(MODEL_KEY, modelEditText.getText().toString());
-        //converte para inteiro antes de enviar
-        intent.putExtra(YEAR_KEY, Integer.parseInt(yearEditText.getText().toString()));
-        // converte para double antes de enviar
-        intent.putExtra(PRICE_KEY, Double.parseDouble(priceEditText.getText().toString()));
 
-        setResult(RESULT_OK, intent);
+        DatabaseReference databaseRef = firebaseDatabase.getReference();
+
+        Car car = new Car(makeEditText.getText().toString(),
+                modelEditText.getText().toString(),
+                Integer.parseInt(yearEditText.getText().toString()),
+                Double.parseDouble(priceEditText.getText().toString()));
+
+
+        databaseRef.child("Cars").push().setValue(car);
+
 
         finish();
 

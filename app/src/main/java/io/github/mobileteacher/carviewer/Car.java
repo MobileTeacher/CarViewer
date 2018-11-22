@@ -7,6 +7,8 @@ public class Car {
     int year;
     double price;
 
+    public Car(){}
+
     public Car(String manufacturer, String model, int year, double price) {
         this.make = manufacturer;
         this.model = model;
