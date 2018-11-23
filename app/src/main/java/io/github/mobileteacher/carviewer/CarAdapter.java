@@ -5,25 +5,20 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.List;
 
 public class CarAdapter extends RecyclerView.Adapter {
 
-    List<Car> carItems;
-
-
-    public CarAdapter(Car[] cars){
-        carItems = new ArrayList<>();
-        for (Car car: cars) {
-            carItems.add(car);
-        }
-    }
-
-    public CarAdapter(List<Car> cars){
-        carItems = cars;
+    List<DataSnapshot> items;
+    public CarAdapter(List<DataSnapshot> cars){
+        items = cars;
     }
 
     @NonNull
@@ -38,7 +33,7 @@ public class CarAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
-            Car car = carItems.get(i);
+            Car car = items.get(i).getValue(Car.class);
 
             CarViewHolder carViewHolder = (CarViewHolder) viewHolder;
 
@@ -50,13 +45,32 @@ public class CarAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemCount() {
-        return carItems.size();
+        return items.size();
     }
 
-    public void addItem(Car newCar){
-        carItems.add(newCar);
+    public void addItem(DataSnapshot newCar){
+        items.add(newCar);
 
-        notifyItemInserted(carItems.size()-1);
+        notifyItemInserted(items.size()-1);
+    }
+
+
+    public void changeItem(DataSnapshot changed){
+        for (int i = 0; i < items.size(); i++) {
+            if (changed.getKey().equals(items.get(i).getKey())){
+                items.set(i, changed);
+                notifyItemChanged(i);
+            }
+        }
+    }
+
+    public void removeItem(DataSnapshot removed){
+        for (int i = 0; i < items.size(); i++) {
+            if (removed.getKey().equals(items.get(i).getKey())){
+                items.remove(i);
+                notifyItemRemoved(i);
+            }
+        }
     }
 
 
@@ -66,6 +80,7 @@ public class CarAdapter extends RecyclerView.Adapter {
         public TextView makeTextView;
         public TextView yearTextView;
         public TextView priceTextView;
+        public Button deleteButton;
 
         public CarViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -74,6 +89,22 @@ public class CarAdapter extends RecyclerView.Adapter {
             modelTextView = itemView.findViewById(R.id.model_name);
             yearTextView = itemView.findViewById(R.id.year);
             priceTextView = itemView.findViewById(R.id.price);
+            deleteButton = itemView.findViewById(R.id.delete_button);
+
+
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int index = getAdapterPosition();
+                    String idToRemove = items.get(index).getKey();
+
+                    DatabaseReference ref = FirebaseDatabase
+                                                .getInstance()
+                                                .getReference("Cars")
+                                                .child(idToRemove);
+                    ref.removeValue();
+                }
+            });
         }
     }
 

@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
@@ -13,6 +14,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -54,7 +56,7 @@ public class CarListActivity extends AppCompatActivity {
 
 
         //Criar um Adapter para a RecyclerView
-        CarAdapter adapter = new CarAdapter(new ArrayList<Car>());
+        CarAdapter adapter = new CarAdapter(new ArrayList<DataSnapshot>());
         //associar RecyclerView a um Adapter
         carRecyclerView.setAdapter(adapter);
         //Dizer a "forma" da RecyclerView
@@ -65,24 +67,46 @@ public class CarListActivity extends AppCompatActivity {
                 new DividerItemDecoration(getApplicationContext(),
                         DividerItemDecoration.VERTICAL));
 
+        progressBar.setVisibility(View.VISIBLE);
+
+        databaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot != null && dataSnapshot.exists()){
+
+                } else {
+                    Snackbar.make(findViewById(R.id.root),
+                            "NAO HA NADA AQUI",
+                            Snackbar.LENGTH_LONG).show();
+                }
+
+                progressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
 
         listener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Car car = dataSnapshot.getValue(Car.class);
-
                 CarAdapter adapter = (CarAdapter) carRecyclerView.getAdapter();
-                adapter.addItem(car);
+                adapter.addItem(dataSnapshot);
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
+                CarAdapter adapter = (CarAdapter) carRecyclerView.getAdapter();
+                adapter.changeItem(dataSnapshot);
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
+                CarAdapter adapter = (CarAdapter) carRecyclerView.getAdapter();
+                adapter.removeItem(dataSnapshot);
             }
 
             @Override
